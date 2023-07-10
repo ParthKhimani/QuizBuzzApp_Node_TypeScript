@@ -1,9 +1,11 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { IManager } from "./manager-user";
+import { IEmployee } from "./employee-user";
 
 export interface ITechnology extends Document {
   name: string;
   managers: mongoose.Types.ObjectId[] | Types.Array<IManager>;
+  employees: mongoose.Types.ObjectId[] | Types.Array<IEmployee>;
 }
 
 const technologySchema: Schema = new Schema({
@@ -12,6 +14,12 @@ const technologySchema: Schema = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "Manager",
+    },
+  ],
+  employees: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Employee",
     },
   ],
 });

@@ -5,6 +5,7 @@ import {
   //   employeeLogin,
 } from "../Controller/loginController";
 import {
+  addEmployee,
   addManager,
   deleteManagerData,
   getManagerData,
@@ -19,6 +20,8 @@ router.post("/manager-login", managerLogin);
 // router.post("/employee-login", employeeLogin);
 
 router.post("/add-manager", addManager);
+
+router.post("/add-employee", addEmployee);
 
 router.get("/admin-dashboard/manager-data", getManagerData);
 
