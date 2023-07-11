@@ -124,3 +124,15 @@ export const addEmployee = async (
     res.status(400).json({ msg: "Not able to assign", status: "400" });
   }
 };
+
+export const getEmployees = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  Employee.find()
+    .populate("technology")
+    .then((result) => {
+      res.status(200).json({ employees: result, status: "200" });
+    });
+};
