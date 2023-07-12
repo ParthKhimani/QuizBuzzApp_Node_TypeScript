@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import Manager, { IManager } from "../Model/manager-user";
 import Technology, { ITechnology } from "../Model/technology";
 import Employee, { IEmployee } from "../Model/employee-user";
+import Quiz, { IQuiz, Question } from "../Model/quiz";
 
 export const addManager = async (
   req: Request,
@@ -134,5 +135,30 @@ export const getEmployees = (
     .populate("technology")
     .then((result) => {
       res.status(200).json({ employees: result, status: "200" });
+    });
+};
+
+export const addQuiz = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { questions, employee } = req.body;
+  const newQuiz = new Quiz({
+    questions: questions,
+  });
+
+  const existingEmployee = await Employee.findOne({ emailId: employee });
+  existingEmployee!.quiz.push(newQuiz._id);
+  newQuiz.employee = existingEmployee!._id;
+  await Promise.all([newQuiz.save(), existingEmployee!.save()]);
+};
+
+export const getQuiz = (req: Request, res: Response, next: NextFunction) => {
+  const { employee } = req.body;
+  Quiz.findOne({ employee: employee })
+    .populate("employee")
+    .then((result) => {
+      console.log(result);
     });
 };

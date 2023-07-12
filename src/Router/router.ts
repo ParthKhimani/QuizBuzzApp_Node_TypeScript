@@ -7,9 +7,11 @@ import {
 import {
   addEmployee,
   addManager,
+  addQuiz,
   deleteManagerData,
   getEmployees,
   getManagerData,
+  getQuiz,
 } from "../Controller/adminController";
 
 const router = express();
@@ -25,6 +27,10 @@ router.post("/add-manager", addManager);
 router.post("/add-employee", addEmployee);
 
 router.get("/get-employees", getEmployees);
+
+router.post("/add-quiz", addQuiz);
+
+router.post("/get-quiz", getQuiz);
 
 router.get("/admin-dashboard/manager-data", getManagerData);
 
