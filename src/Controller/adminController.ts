@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import Manager, { IManager } from "../Model/manager-user";
 import Technology, { ITechnology } from "../Model/technology";
 import Employee, { IEmployee } from "../Model/employee-user";
-import Quiz, { IQuiz, Question } from "../Model/quiz";
+import Quiz from "../Model/quiz";
+import nodemailer from "nodemailer";
 
 export const addManager = async (
   req: Request,
@@ -144,21 +145,63 @@ export const addQuiz = async (
   next: NextFunction
 ) => {
   const { questions, employee } = req.body;
+  const existingEmployee = await Employee.findOne({ emailId: employee });
   const newQuiz = new Quiz({
     questions: questions,
+    employee: existingEmployee!._id,
+  });
+  await newQuiz.save().then((result) => {
+    existingEmployee!.quizes.push(result._id);
+    existingEmployee!.save();
+  });
+  res.status(200).json({ msg: "quiz added successfully!", status: "200" });
+  let mailTransporter = nodemailer.createTransport({
+    tls: {
+      rejectUnauthorized: false,
+    },
+    service: "gmail",
+    auth: {
+      user: "parthkhimani48@gmail.com",
+      pass: "maatulplnmgqgyio",
+    },
   });
 
-  const existingEmployee = await Employee.findOne({ emailId: employee });
-  existingEmployee!.quiz.push(newQuiz._id);
-  newQuiz.employee = existingEmployee!._id;
-  await Promise.all([newQuiz.save(), existingEmployee!.save()]);
+  let mailDetails = {
+    from: "parthkhimani48@gmail.com",
+    to: employee,
+    subject: "New Quiz Created!",
+    text: "Greetings from QuizBuzz, Your new quiz was created , Login to attend the quiz!",
+  };
+
+  mailTransporter.sendMail(mailDetails, function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("Email sent successfully");
+    }
+  });
 };
 
 export const getQuiz = (req: Request, res: Response, next: NextFunction) => {
   const { employee } = req.body;
-  Quiz.findOne({ employee: employee })
-    .populate("employee")
+  Employee.findOne({ emailId: employee })
+    .populate("quizes")
+    .populate("technology")
     .then((result) => {
-      console.log(result);
+      res.status(200).json({ quiz: result });
+    });
+};
+
+export const getQuizData = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { index, employee } = req.body;
+  Employee.findOne({ emailId: employee })
+    .populate("quizes")
+    .then((result) => {
+      const quiz = result?.quizes[index - 1];
+      res.status(200).json({ quiz: quiz });
     });
 };

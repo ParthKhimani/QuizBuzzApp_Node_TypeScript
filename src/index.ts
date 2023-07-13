@@ -13,4 +13,6 @@ app.use(router);
 mongoose.connect(
   "mongodb+srv://parth:P%40rth2005@cluster0.eixcpta.mongodb.net/quiz?retryWrites=true&w=majority"
 );
-app.listen(3333);
+app.listen(3333, () => {
+  console.log("connected!");
+});

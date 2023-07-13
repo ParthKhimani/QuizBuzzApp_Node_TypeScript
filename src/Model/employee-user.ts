@@ -6,17 +6,17 @@ export interface IEmployee extends Document {
   emailId: string;
   password: string;
   technology: mongoose.Types.ObjectId | ITechnology;
-  quiz: mongoose.Types.ObjectId[] | Types.Array<IQuiz>;
+  quizes: mongoose.Types.ObjectId[] | Types.Array<IQuiz>;
 }
 
-const employeeSchema: Schema = new Schema({
+const employeeSchema = new Schema<IEmployee>({
   emailId: String,
   password: String,
   technology: {
     type: Schema.Types.ObjectId,
     ref: "Technology",
   },
-  quizs: [
+  quizes: [
     {
       type: Schema.Types.ObjectId,
       ref: "Quiz",
