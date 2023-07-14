@@ -154,7 +154,7 @@ export const addQuiz = async (
     existingEmployee!.quizes.push(result._id);
     existingEmployee!.save();
   });
-  res.status(200).json({ msg: "quiz added successfully!", status: "200" });
+
   let mailTransporter = nodemailer.createTransport({
     tls: {
       rejectUnauthorized: false,
@@ -178,6 +178,7 @@ export const addQuiz = async (
       console.log(err);
     } else {
       console.log("Email sent successfully");
+      res.status(202).json({ msg: "email sent successfully", status: "202" });
     }
   });
 };
