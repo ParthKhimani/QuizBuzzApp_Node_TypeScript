@@ -151,7 +151,10 @@ export const addQuiz = async (
     employee: existingEmployee!._id,
   });
   await newQuiz.save().then((result) => {
-    existingEmployee!.quizes.push(result._id);
+    existingEmployee!.quizes.push({
+      quiz: result._id,
+      score: questions.length,
+    });
     existingEmployee!.save();
   });
 
@@ -181,28 +184,4 @@ export const addQuiz = async (
       res.status(202).json({ msg: "email sent successfully", status: "202" });
     }
   });
-};
-
-export const getQuiz = (req: Request, res: Response, next: NextFunction) => {
-  const { employee } = req.body;
-  Employee.findOne({ emailId: employee })
-    .populate("quizes")
-    .populate("technology")
-    .then((result) => {
-      res.status(200).json({ quiz: result });
-    });
-};
-
-export const getQuizData = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { index, employee } = req.body;
-  Employee.findOne({ emailId: employee })
-    .populate("quizes")
-    .then((result) => {
-      const quiz = result?.quizes[index - 1];
-      res.status(200).json({ quiz: quiz });
-    });
 };

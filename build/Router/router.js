@@ -1,0 +1,23 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const loginController_1 = require("../Controller/loginController");
+const adminController_1 = require("../Controller/adminController");
+const quizController_1 = require("../Controller/quizController");
+const router = (0, express_1.default)();
+router.post("/admin-login", loginController_1.adminLogin);
+router.post("/manager-login", loginController_1.managerLogin);
+router.post("/employee-login", loginController_1.employeeLogin);
+router.post("/add-manager", adminController_1.addManager);
+router.post("/add-employee", adminController_1.addEmployee);
+router.get("/get-employees", adminController_1.getEmployees);
+router.post("/add-quiz", adminController_1.addQuiz);
+router.post("/get-quiz", quizController_1.getQuiz);
+router.post("/get-quiz-data", quizController_1.getQuizData);
+router.post("/add-score", quizController_1.addScore);
+router.get("/admin-dashboard/manager-data", adminController_1.getManagerData);
+router.post("/admin-dashboard/delete-manager-data", adminController_1.deleteManagerData);
+exports.default = router;

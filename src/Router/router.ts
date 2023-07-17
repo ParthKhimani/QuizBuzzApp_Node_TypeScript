@@ -11,9 +11,8 @@ import {
   deleteManagerData,
   getEmployees,
   getManagerData,
-  getQuiz,
-  getQuizData,
 } from "../Controller/adminController";
+import { addScore, getQuiz, getQuizData } from "../Controller/quizController";
 
 const router = express();
 
@@ -34,6 +33,8 @@ router.post("/add-quiz", addQuiz);
 router.post("/get-quiz", getQuiz);
 
 router.post("/get-quiz-data", getQuizData);
+
+router.post("/add-score", addScore);
 
 router.get("/admin-dashboard/manager-data", getManagerData);
 

@@ -6,7 +6,11 @@ export interface IEmployee extends Document {
   emailId: string;
   password: string;
   technology: mongoose.Types.ObjectId | ITechnology;
-  quizes: mongoose.Types.ObjectId[] | Types.Array<IQuiz>;
+  quizes: Array<{
+    quiz: mongoose.Types.ObjectId | IQuiz;
+    score: number;
+    scoreGained?: Number;
+  }>;
 }
 
 const employeeSchema = new Schema<IEmployee>({
@@ -18,8 +22,12 @@ const employeeSchema = new Schema<IEmployee>({
   },
   quizes: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Quiz",
+      quiz: {
+        type: Schema.Types.ObjectId,
+        ref: "Quiz",
+      },
+      score: Number,
+      scoreGained: Number,
     },
   ],
 });
