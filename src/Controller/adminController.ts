@@ -12,15 +12,16 @@ export const addManager = async (
 ) => {
   try {
     const { manager, password, technology } = req.body;
-    const existingManager: IManager | null = await Manager.findOne({
+    const existingManager = await Manager.findOne({
       emailId: manager,
     }).populate("technology");
-    const existingTechnology: ITechnology | null = await Technology.findOne({
+    const existingTechnology = await Technology.findOne({
       name: technology,
     }).populate("managers");
+    const managerTechnology = existingManager?.technology as ITechnology;
     if (
       existingManager &&
-      !existingManager.technology.equals(existingTechnology?._id)
+      managerTechnology.name !== existingTechnology?.name
     ) {
       res.status(400).json({
         msg: "Manager is already assigned to another technology",
@@ -28,18 +29,27 @@ export const addManager = async (
       });
     } else if (
       existingManager &&
-      existingManager.technology.equals(existingTechnology?._id)
+      managerTechnology.name === existingTechnology?.name
     ) {
       res.status(402).json({
         msg: "Manager is already assigned to that technology",
         status: "402",
       });
-    } else {
-      const newManager: IManager = new Manager({
+    } else if (technology === existingTechnology?.name) {
+      const newManager = new Manager({
         emailId: manager,
         password: password,
       });
-      const newTechnology: ITechnology = new Technology({
+      existingTechnology?.managers.push(newManager._id);
+      newManager.technology = existingTechnology?._id;
+      await Promise.all([newManager.save(), existingTechnology?.save()]);
+      res.status(200).json({ msg: "Assignment successful", status: "200" });
+    } else {
+      const newManager = new Manager({
+        emailId: manager,
+        password: password,
+      });
+      const newTechnology = new Technology({
         name: technology,
       });
       newTechnology.managers.push(newManager._id);
@@ -70,10 +80,13 @@ export const deleteManagerData = (
   res: Response,
   next: NextFunction
 ) => {
-  const manager = req.body;
-  const id = req.body._id;
-  Manager.findByIdAndDelete(id).then(() => {
-    Technology.findOneAndDelete({ managers: manager }).then(() => {
+  const { emailId, _id } = req.body;
+  Manager.findOneAndDelete({ emailId: emailId }).then(() => {
+    Technology.findOneAndUpdate(
+      { managers: _id },
+      { $pull: { managers: _id } },
+      { new: true }
+    ).then(() => {
       res.status(200).json({ msg: "deleted successfully", status: "200" });
     });
   });
@@ -86,15 +99,16 @@ export const addEmployee = async (
 ) => {
   try {
     const { employee, password, technology } = req.body;
-    const existingEmployee: IEmployee | null = await Employee.findOne({
+    const existingEmployee = await Employee.findOne({
       emailId: employee,
     }).populate("technology");
-    const existingTechnology: ITechnology | null = await Technology.findOne({
+    const existingTechnology = await Technology.findOne({
       name: technology,
     }).populate("employees");
+    const employeeTechnology = existingEmployee?.technology as ITechnology;
     if (
       existingEmployee &&
-      !existingEmployee.technology.equals(existingTechnology?._id)
+      employeeTechnology.name !== existingTechnology?.name
     ) {
       res.status(400).json({
         msg: "Employee is already assigned to another technology",
@@ -102,18 +116,27 @@ export const addEmployee = async (
       });
     } else if (
       existingEmployee &&
-      existingEmployee.technology.equals(existingTechnology?._id)
+      employeeTechnology.name === existingTechnology?.name
     ) {
       res.status(402).json({
         msg: "Employee is already assigned to that technology",
         status: "402",
       });
-    } else {
-      const newEmployee: IEmployee = new Employee({
+    } else if (technology === existingTechnology?.name) {
+      const newEmployee = new Employee({
         emailId: employee,
         password: password,
       });
-      const newTechnology: ITechnology = new Technology({
+      existingTechnology?.employees.push(newEmployee._id);
+      newEmployee.technology = existingTechnology?._id;
+      await Promise.all([newEmployee.save(), existingTechnology?.save()]);
+      res.status(200).json({ msg: "Assignment successful", status: "200" });
+    } else {
+      const newEmployee = new Employee({
+        emailId: employee,
+        password: password,
+      });
+      const newTechnology = new Technology({
         name: technology,
       });
       newTechnology.employees.push(newEmployee._id);
@@ -183,5 +206,34 @@ export const addQuiz = async (
       console.log("Email sent successfully");
       res.status(202).json({ msg: "email sent successfully", status: "202" });
     }
+  });
+};
+
+export const getEmployeeData = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  Employee.find()
+    .populate("technology")
+    .then((result) => {
+      res.status(200).json({ data: result, status: "200" });
+    });
+};
+
+export const deleteEmployeeData = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { emailId, _id } = req.body;
+  Employee.findOneAndDelete({ emailId: emailId }).then(() => {
+    Technology.findOneAndUpdate(
+      { employees: _id },
+      { $pull: { employees: _id } },
+      { new: true }
+    ).then(() => {
+      res.status(200).json({ msg: "employee deleted", status: "200" });
+    });
   });
 };

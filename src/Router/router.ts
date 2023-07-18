@@ -8,7 +8,9 @@ import {
   addEmployee,
   addManager,
   addQuiz,
+  deleteEmployeeData,
   deleteManagerData,
+  getEmployeeData,
   getEmployees,
   getManagerData,
 } from "../Controller/adminController";
@@ -38,6 +40,10 @@ router.post("/add-score", addScore);
 
 router.get("/admin-dashboard/manager-data", getManagerData);
 
+router.get("/admin-dashboard/employee-data", getEmployeeData);
+
 router.post("/admin-dashboard/delete-manager-data", deleteManagerData);
+
+router.post("/admin-dashboard/delete-employee-data", deleteEmployeeData);
 
 export default router;

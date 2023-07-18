@@ -10,6 +10,7 @@ export interface IEmployee extends Document {
     quiz: mongoose.Types.ObjectId | IQuiz;
     score: number;
     scoreGained?: Number;
+    attempted?: boolean;
   }>;
 }
 
@@ -28,6 +29,10 @@ const employeeSchema = new Schema<IEmployee>({
       },
       score: Number,
       scoreGained: Number,
+      attempted: {
+        type: Boolean,
+        default: false,
+      },
     },
   ],
 });

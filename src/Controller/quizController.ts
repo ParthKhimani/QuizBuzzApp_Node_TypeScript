@@ -19,7 +19,7 @@ export const getQuizData = (
 ) => {
   const { index, employee } = req.body;
   Employee.findOne({ emailId: employee })
-    .populate("quizes.quiz")
+    .populate({ path: "quizes.quiz", select: "-questions.answer" })
     .then((result) => {
       const quiz = result?.quizes[index - 1].quiz;
       res.status(200).json({ quiz: quiz });
@@ -46,10 +46,12 @@ export const addScore = async (
   updatedScore = result!.quizes[quizIndex - 1].score - countFalse;
   const filter = { emailId: employee };
   const update = {
-    $set: { [`quizes.${quizIndex - 1}.scoreGained`]: updatedScore },
+    $set: {
+      [`quizes.${quizIndex - 1}.scoreGained`]: updatedScore,
+      [`quizes.${quizIndex - 1}.attempted`]: true,
+    },
   };
-  const result2 = await Employee.findOneAndUpdate(filter, update, {
+  await Employee.findOneAndUpdate(filter, update, {
     new: true,
   });
-  console.log(result2!.quizes[quizIndex - 1].scoreGained);
 };
