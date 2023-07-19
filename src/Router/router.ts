@@ -13,6 +13,8 @@ import {
   getEmployeeData,
   getEmployees,
   getManagerData,
+  updateEmployee,
+  updateManager,
 } from "../Controller/adminController";
 import { addScore, getQuiz, getQuizData } from "../Controller/quizController";
 
@@ -26,7 +28,11 @@ router.post("/employee-login", employeeLogin);
 
 router.post("/add-manager", addManager);
 
+router.post("/update-manager", updateManager);
+
 router.post("/add-employee", addEmployee);
+
+router.post("/update-employee", updateEmployee);
 
 router.get("/get-employees", getEmployees);
 

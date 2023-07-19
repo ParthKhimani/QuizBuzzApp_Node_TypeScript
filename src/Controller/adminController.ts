@@ -92,6 +92,36 @@ export const deleteManagerData = (
   });
 };
 
+export const updateManager = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { manager, password, technology } = req.body;
+  const existingManager = await Manager.findOne({ emailId: manager }).populate(
+    "technology"
+  );
+  const existingTechnology = existingManager?.technology as ITechnology;
+  const result = await Technology.findOne({ name: technology });
+  if (result) {
+    result.managers.push(existingManager?._id);
+    result.save();
+    const managerIndex = existingTechnology.managers.indexOf(manager);
+    existingTechnology.managers.splice(managerIndex);
+    existingManager!.technology = result._id;
+    await Promise.all([existingTechnology.save(), existingManager?.save()]);
+    res.status(200).json({ msg: "manager updated!", status: "200" });
+  } else {
+    const newTechnology = new Technology({
+      name: technology,
+    });
+    newTechnology.save();
+    existingManager!.technology = newTechnology._id;
+    await Promise.all([existingTechnology.save(), existingManager?.save()]);
+    res.status(202).json({ msg: "manager updated!", status: "202" });
+  }
+};
+
 export const addEmployee = async (
   req: Request,
   res: Response,
@@ -236,4 +266,34 @@ export const deleteEmployeeData = (
       res.status(200).json({ msg: "employee deleted", status: "200" });
     });
   });
+};
+
+export const updateEmployee = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { employee, password, technology } = req.body;
+  const existingEmployee = await Employee.findOne({
+    emailId: employee,
+  }).populate("technology");
+  const existingTechnology = existingEmployee?.technology as ITechnology;
+  const result = await Technology.findOne({ name: technology });
+  if (result) {
+    result.employees.push(existingEmployee?._id);
+    result.save();
+    const employeeIndex = existingTechnology.employees.indexOf(employee);
+    existingTechnology.employees.splice(employeeIndex);
+    existingEmployee!.technology = result._id;
+    await Promise.all([existingTechnology.save(), existingEmployee?.save()]);
+    res.status(200).json({ msg: "employee updated!", status: "200" });
+  } else {
+    const newTechnology = new Technology({
+      name: technology,
+    });
+    newTechnology.save();
+    existingEmployee!.technology = newTechnology._id;
+    await Promise.all([existingTechnology.save(), existingEmployee?.save()]);
+    res.status(202).json({ msg: "manager updated!", status: "202" });
+  }
 };
