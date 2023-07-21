@@ -180,16 +180,14 @@ export const addEmployee = async (
   }
 };
 
-export const getEmployees = (
+export const getTechnologies = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  Employee.find()
-    .populate("technology")
-    .then((result) => {
-      res.status(200).json({ employees: result, status: "200" });
-    });
+  Technology.find().then((result) => {
+    res.status(200).json({ technologies: result, status: "200" });
+  });
 };
 
 export const addQuiz = async (
@@ -197,46 +195,55 @@ export const addQuiz = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { questions, employee } = req.body;
-  const existingEmployee = await Employee.findOne({ emailId: employee });
-  const newQuiz = new Quiz({
-    questions: questions,
-    employee: existingEmployee!._id,
+  const { questions, technology } = req.body;
+
+  const existingTechnology = await Technology.findOne({
+    name: technology,
   });
-  await newQuiz.save().then((result) => {
-    existingEmployee!.quizes.push({
+  const existingEmployees = existingTechnology!.employees;
+  for (let i = 0; i < existingEmployees!.length; i++) {
+    const newQuiz = new Quiz({
+      questions: questions,
+      employee: existingEmployees![i]._id,
+    });
+    const result = await newQuiz.save();
+    const existingEmployee = await Employee.find({
+      _id: { $in: existingEmployees },
+    });
+    existingEmployee![i].quizes.push({
       quiz: result._id,
       score: questions.length,
     });
-    existingEmployee!.save();
-  });
+    await existingEmployee![i].save();
 
-  let mailTransporter = nodemailer.createTransport({
-    tls: {
-      rejectUnauthorized: false,
-    },
-    service: "gmail",
-    auth: {
-      user: "parthkhimani48@gmail.com",
-      pass: "maatulplnmgqgyio",
-    },
-  });
+    //sending mail to all the candidates in the technology selected
+    let mailTransporter = nodemailer.createTransport({
+      tls: {
+        rejectUnauthorized: false,
+      },
+      service: "gmail",
+      auth: {
+        user: "parthkhimani48@gmail.com",
+        pass: "maatulplnmgqgyio",
+      },
+    });
 
-  let mailDetails = {
-    from: "parthkhimani48@gmail.com",
-    to: employee,
-    subject: "New Quiz Created!",
-    text: "Greetings from QuizBuzz, Your new quiz was created , Login to attend the quiz!",
-  };
+    let mailDetails = {
+      from: "parthkhimani48@gmail.com",
+      to: existingEmployee![i].emailId,
+      subject: "New Quiz Created!",
+      text: "Greetings from QuizBuzz, Your new quiz was created , Login to attend the quiz!",
+    };
 
-  mailTransporter.sendMail(mailDetails, function (err, data) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("Email sent successfully");
-      res.status(202).json({ msg: "email sent successfully", status: "202" });
-    }
-  });
+    mailTransporter.sendMail(mailDetails, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("Email sent successfully");
+        res.status(202).json({ msg: "email sent successfully", status: "202" });
+      }
+    });
+  }
 };
 
 export const getEmployeeData = (

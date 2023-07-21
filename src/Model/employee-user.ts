@@ -3,6 +3,8 @@ import { ITechnology } from "./technology";
 import { IQuiz } from "./quiz";
 
 export interface IEmployee extends Document {
+  firstName: string;
+  lastName: string;
   emailId: string;
   password: string;
   technology: mongoose.Types.ObjectId | ITechnology;
@@ -15,6 +17,8 @@ export interface IEmployee extends Document {
 }
 
 const employeeSchema = new Schema<IEmployee>({
+  firstName: String,
+  lastName: String,
   emailId: String,
   password: String,
   technology: {

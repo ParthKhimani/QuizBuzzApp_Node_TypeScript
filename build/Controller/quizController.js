@@ -27,7 +27,7 @@ exports.getQuiz = getQuiz;
 const getQuizData = (req, res, next) => {
     const { index, employee } = req.body;
     employee_user_1.default.findOne({ emailId: employee })
-        .populate("quizes.quiz")
+        .populate({ path: "quizes.quiz", select: "-questions.answer" })
         .then((result) => {
         const quiz = result === null || result === void 0 ? void 0 : result.quizes[index - 1].quiz;
         res.status(200).json({ quiz: quiz });
@@ -48,9 +48,13 @@ const addScore = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     updatedScore = result.quizes[quizIndex - 1].score - countFalse;
     const filter = { emailId: employee };
     const update = {
-        $set: { [`quizes.${quizIndex - 1}.scoreGained`]: updatedScore },
+        $set: {
+            [`quizes.${quizIndex - 1}.scoreGained`]: updatedScore,
+            [`quizes.${quizIndex - 1}.attempted`]: true,
+        },
     };
-    const result2 = yield employee_user_1.default.findOneAndUpdate(filter, update);
-    console.log(result2.quizes[quizIndex - 1].scoreGained);
+    yield employee_user_1.default.findOneAndUpdate(filter, update, {
+        new: true,
+    });
 });
 exports.addScore = addScore;

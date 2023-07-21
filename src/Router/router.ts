@@ -2,6 +2,7 @@ import express from "express";
 import {
   adminLogin,
   employeeLogin,
+  employeeRegister,
   managerLogin,
 } from "../Controller/loginController";
 import {
@@ -11,8 +12,8 @@ import {
   deleteEmployeeData,
   deleteManagerData,
   getEmployeeData,
-  getEmployees,
   getManagerData,
+  getTechnologies,
   updateEmployee,
   updateManager,
 } from "../Controller/adminController";
@@ -26,6 +27,8 @@ router.post("/manager-login", managerLogin);
 
 router.post("/employee-login", employeeLogin);
 
+router.post("/employee-register", employeeRegister);
+
 router.post("/add-manager", addManager);
 
 router.post("/update-manager", updateManager);
@@ -34,7 +37,7 @@ router.post("/add-employee", addEmployee);
 
 router.post("/update-employee", updateEmployee);
 
-router.get("/get-employees", getEmployees);
+router.get("/get-technologies", getTechnologies);
 
 router.post("/add-quiz", addQuiz);
 

@@ -39,6 +39,10 @@ const employeeSchema = new mongoose_1.Schema({
             },
             score: Number,
             scoreGained: Number,
+            attempted: {
+                type: Boolean,
+                default: false,
+            },
         },
     ],
 });

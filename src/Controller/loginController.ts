@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import Admin from "../Model/admin-user";
 import Manager from "../Model/manager-user";
 import Employee from "../Model/employee-user";
+import Technology from "../Model/technology";
 
 export const adminLogin = (req: Request, res: Response, next: NextFunction) => {
   const { emailId, password } = req.body;
@@ -57,4 +58,41 @@ export const employeeLogin = (
       }
     }
   });
+};
+
+export const employeeRegister = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { firstName, lastName, emailId, password, technology } = req.body;
+  const result = await Employee.findOne({ emailId: emailId });
+  if (result != null) {
+    res
+      .status(400)
+      .json({ msg: "employee already registered!", status: "400" });
+  } else {
+    const newEmployee = new Employee({
+      firstName: firstName,
+      lastName: lastName,
+      emailId: emailId,
+      password: password,
+    });
+    const existingTechnology = await Technology.findOne({ name: technology });
+    if (existingTechnology != null) {
+      existingTechnology.employees.push(newEmployee._id);
+      newEmployee.technology = existingTechnology._id;
+      await Promise.all([existingTechnology.save(), newEmployee.save()]);
+      res.status(202).json({ msg: "employee registered!", status: "202" });
+    } else {
+      const newTechnology = new Technology({
+        name: technology,
+      });
+      await newTechnology.save();
+      newTechnology.employees.push(newEmployee._id);
+      newEmployee.technology = newTechnology._id;
+      await Promise.all([newTechnology.save(), newEmployee.save()]);
+      res.status(202).json({ msg: "employee registered!", status: "202" });
+    }
+  }
 };
