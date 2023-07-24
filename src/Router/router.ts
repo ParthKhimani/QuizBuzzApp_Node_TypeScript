@@ -18,6 +18,7 @@ import {
   updateManager,
 } from "../Controller/adminController";
 import { addScore, getQuiz, getQuizData } from "../Controller/quizController";
+import expressAsyncHandler from "express-async-handler";
 
 const router = express();
 
@@ -47,9 +48,15 @@ router.post("/get-quiz-data", getQuizData);
 
 router.post("/add-score", addScore);
 
-router.get("/admin-dashboard/manager-data", getManagerData);
+router.get(
+  "/admin-dashboard/manager-data",
+  expressAsyncHandler(getManagerData)
+);
 
-router.get("/admin-dashboard/employee-data", getEmployeeData);
+router.get(
+  "/admin-dashboard/employee-data",
+  expressAsyncHandler(getEmployeeData)
+);
 
 router.post("/admin-dashboard/delete-manager-data", deleteManagerData);
 

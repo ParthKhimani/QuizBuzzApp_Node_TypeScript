@@ -1,15 +1,11 @@
-import { Request, Response, NextFunction } from "express";
-import Manager, { IManager } from "../Model/manager-user";
+import { Request, Response } from "express";
+import Manager from "../Model/manager-user";
 import Technology, { ITechnology } from "../Model/technology";
-import Employee, { IEmployee } from "../Model/employee-user";
+import Employee from "../Model/employee-user";
 import Quiz from "../Model/quiz";
 import nodemailer from "nodemailer";
 
-export const addManager = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const addManager = async (req: Request, res: Response) => {
   try {
     const { manager, password, technology } = req.body;
     const existingManager = await Manager.findOne({
@@ -57,76 +53,65 @@ export const addManager = async (
       await Promise.all([newManager.save(), newTechnology.save()]);
       res.status(200).json({ msg: "Assignment successful", status: "200" });
     }
-  } catch (error) {
-    console.error(error);
+  } catch {
     res.status(400).json({ msg: "Not able to assign", status: "400" });
+    throw new Error();
   }
 };
 
-export const getManagerData = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  Manager.find()
-    .populate("technology")
-    .then((result) => {
-      res.status(200).json({ data: result, status: "200" });
-    });
+export const getManagerData = async (req: Request, res: Response) => {
+  const result = await Manager.find().populate("technology");
+  res.status(200).json({ data: result, status: "200" });
 };
 
-export const deleteManagerData = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { emailId, _id } = req.body;
-  Manager.findOneAndDelete({ emailId: emailId }).then(() => {
-    Technology.findOneAndUpdate(
-      { managers: _id },
-      { $pull: { managers: _id } },
-      { new: true }
-    ).then(() => {
-      res.status(200).json({ msg: "deleted successfully", status: "200" });
+export const deleteManagerData = (req: Request, res: Response) => {
+  try {
+    const { emailId, _id } = req.body;
+    Manager.findOneAndDelete({ emailId: emailId }).then(() => {
+      Technology.findOneAndUpdate(
+        { managers: _id },
+        { $pull: { managers: _id } },
+        { new: true }
+      ).then(() => {
+        res.status(200).json({ msg: "deleted successfully", status: "200" });
+      });
     });
-  });
-};
-
-export const updateManager = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { manager, password, technology } = req.body;
-  const existingManager = await Manager.findOne({ emailId: manager }).populate(
-    "technology"
-  );
-  const existingTechnology = existingManager?.technology as ITechnology;
-  const result = await Technology.findOne({ name: technology });
-  if (result) {
-    result.managers.push(existingManager?._id);
-    result.save();
-    const managerIndex = existingTechnology.managers.indexOf(manager);
-    existingTechnology.managers.splice(managerIndex);
-    existingManager!.technology = result._id;
-    await Promise.all([existingTechnology.save(), existingManager?.save()]);
-    res.status(200).json({ msg: "manager updated!", status: "200" });
-  } else {
-    const newTechnology = new Technology({
-      name: technology,
-    });
-    newTechnology.save();
-    existingManager!.technology = newTechnology._id;
-    await Promise.all([existingTechnology.save(), existingManager?.save()]);
-    res.status(202).json({ msg: "manager updated!", status: "202" });
+  } catch {
+    throw new Error();
   }
 };
 
-export const addEmployee = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const updateManager = async (req: Request, res: Response) => {
+  try {
+    const { manager, password, technology } = req.body;
+    const existingManager = await Manager.findOne({
+      emailId: manager,
+    }).populate("technology");
+    const existingTechnology = existingManager?.technology as ITechnology;
+    const result = await Technology.findOne({ name: technology });
+    if (result) {
+      result.managers.push(existingManager?._id);
+      result.save();
+      const managerIndex = existingTechnology.managers.indexOf(manager);
+      existingTechnology.managers.splice(managerIndex);
+      existingManager!.technology = result._id;
+      await Promise.all([existingTechnology.save(), existingManager?.save()]);
+      res.status(200).json({ msg: "manager updated!", status: "200" });
+    } else {
+      const newTechnology = new Technology({
+        name: technology,
+      });
+      newTechnology.save();
+      existingManager!.technology = newTechnology._id;
+      await Promise.all([existingTechnology.save(), existingManager?.save()]);
+      res.status(202).json({ msg: "manager updated!", status: "202" });
+    }
+  } catch {
+    throw new Error();
+  }
+};
+
+export const addEmployee = async (req: Request, res: Response) => {
   try {
     const { employee, password, technology } = req.body;
     const existingEmployee = await Employee.findOne({
@@ -174,133 +159,127 @@ export const addEmployee = async (
       await Promise.all([newEmployee.save(), newTechnology.save()]);
       res.status(200).json({ msg: "Assignment successful", status: "200" });
     }
-  } catch (error) {
-    console.error(error);
+  } catch {
     res.status(400).json({ msg: "Not able to assign", status: "400" });
+    throw new Error();
   }
 };
 
-export const getTechnologies = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  Technology.find().then((result) => {
-    res.status(200).json({ technologies: result, status: "200" });
-  });
-};
-
-export const addQuiz = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { questions, technology } = req.body;
-
-  const existingTechnology = await Technology.findOne({
-    name: technology,
-  });
-  const existingEmployees = existingTechnology!.employees;
-  for (let i = 0; i < existingEmployees!.length; i++) {
-    const newQuiz = new Quiz({
-      questions: questions,
-      employee: existingEmployees![i]._id,
+export const getTechnologies = (req: Request, res: Response) => {
+  try {
+    Technology.find().then((result) => {
+      res.status(200).json({ technologies: result, status: "200" });
     });
-    const result = await newQuiz.save();
-    const existingEmployee = await Employee.find({
-      _id: { $in: existingEmployees },
-    });
-    existingEmployee![i].quizes.push({
-      quiz: result._id,
-      score: questions.length,
-    });
-    await existingEmployee![i].save();
-
-    //sending mail to all the candidates in the technology selected
-    let mailTransporter = nodemailer.createTransport({
-      tls: {
-        rejectUnauthorized: false,
-      },
-      service: "gmail",
-      auth: {
-        user: "parthkhimani48@gmail.com",
-        pass: "maatulplnmgqgyio",
-      },
-    });
-
-    let mailDetails = {
-      from: "parthkhimani48@gmail.com",
-      to: existingEmployee![i].emailId,
-      subject: "New Quiz Created!",
-      text: "Greetings from QuizBuzz, Your new quiz was created , Login to attend the quiz!",
-    };
-
-    mailTransporter.sendMail(mailDetails, function (err, data) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("Email sent successfully");
-        res.status(202).json({ msg: "email sent successfully", status: "202" });
-      }
-    });
+  } catch {
+    throw new Error();
   }
 };
 
-export const getEmployeeData = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  Employee.find()
-    .populate("technology")
-    .then((result) => {
-      res.status(200).json({ data: result, status: "200" });
-    });
-};
-
-export const deleteEmployeeData = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { emailId, _id } = req.body;
-  Employee.findOneAndDelete({ emailId: emailId }).then(() => {
-    Technology.findOneAndUpdate(
-      { employees: _id },
-      { $pull: { employees: _id } },
-      { new: true }
-    ).then(() => {
-      res.status(200).json({ msg: "employee deleted", status: "200" });
-    });
-  });
-};
-
-export const updateEmployee = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { employee, password, technology } = req.body;
-  const existingEmployee = await Employee.findOne({
-    emailId: employee,
-  }).populate("technology");
-  const existingTechnology = existingEmployee?.technology as ITechnology;
-  const result = await Technology.findOne({ name: technology });
-  if (result) {
-    result.employees.push(existingEmployee?._id);
-    result.save();
-    const employeeIndex = existingTechnology.employees.indexOf(employee);
-    existingTechnology.employees.splice(employeeIndex);
-    existingEmployee!.technology = result._id;
-    await Promise.all([existingTechnology.save(), existingEmployee?.save()]);
-    res.status(200).json({ msg: "employee updated!", status: "200" });
-  } else {
-    const newTechnology = new Technology({
+export const addQuiz = async (req: Request, res: Response) => {
+  try {
+    const { questions, technology } = req.body;
+    const existingTechnology = await Technology.findOne({
       name: technology,
     });
-    newTechnology.save();
-    existingEmployee!.technology = newTechnology._id;
-    await Promise.all([existingTechnology.save(), existingEmployee?.save()]);
-    res.status(202).json({ msg: "manager updated!", status: "202" });
+    const existingEmployees = existingTechnology!.employees;
+    for (let i = 0; i < existingEmployees!.length; i++) {
+      const newQuiz = new Quiz({
+        questions: questions,
+        employee: existingEmployees![i]._id,
+      });
+      const result = await newQuiz.save();
+      const existingEmployee = await Employee.find({
+        _id: { $in: existingEmployees },
+      });
+      existingEmployee![i].quizes.push({
+        quiz: result._id,
+        score: questions.length,
+      });
+      await existingEmployee![i].save();
+
+      //sending mail to all the candidates in the technology selected
+      let mailTransporter = nodemailer.createTransport({
+        tls: {
+          rejectUnauthorized: false,
+        },
+        service: "gmail",
+        auth: {
+          user: "parthkhimani48@gmail.com",
+          pass: "maatulplnmgqgyio",
+        },
+      });
+
+      let mailDetails = {
+        from: "parthkhimani48@gmail.com",
+        to: existingEmployee![i].emailId,
+        subject: "New Quiz Created!",
+        text: "Greetings from QuizBuzz, Your new quiz was created , Login to attend the quiz!",
+      };
+
+      mailTransporter.sendMail(mailDetails, function (err, data) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Email sent successfully");
+          res
+            .status(202)
+            .json({ msg: "email sent successfully", status: "202" });
+        }
+      });
+    }
+  } catch {
+    throw new Error();
+  }
+};
+
+export const getEmployeeData = async (req: Request, res: Response) => {
+  const result = await Employee.find().populate("technology");
+  res.status(200).json({ data: result, status: "200" });
+};
+
+export const deleteEmployeeData = (req: Request, res: Response) => {
+  try {
+    const { emailId, _id } = req.body;
+    Employee.findOneAndDelete({ emailId: emailId }).then(() => {
+      Technology.findOneAndUpdate(
+        { employees: _id },
+        { $pull: { employees: _id } },
+        { new: true }
+      ).then(() => {
+        res.status(200).json({ msg: "employee deleted", status: "200" });
+      });
+    });
+  } catch {
+    throw new Error();
+  }
+};
+
+export const updateEmployee = async (req: Request, res: Response) => {
+  try {
+    const { employee, password, technology } = req.body;
+    const existingEmployee = await Employee.findOne({
+      emailId: employee,
+    }).populate("technology");
+    const existingTechnology = existingEmployee?.technology as ITechnology;
+    const result = await Technology.findOne({ name: technology });
+    if (result) {
+      result.employees.push(existingEmployee?._id);
+      result.save();
+      const employeeIndex = existingTechnology.employees.indexOf(employee);
+      existingTechnology.employees.splice(employeeIndex);
+      existingEmployee!.technology = result._id;
+      await Promise.all([existingTechnology.save(), existingEmployee?.save()]);
+      res.status(200).json({ msg: "employee updated!", status: "200" });
+    } else {
+      const newTechnology = new Technology({
+        name: technology,
+      });
+      newTechnology.save();
+      existingEmployee!.technology = newTechnology._id;
+      await Promise.all([existingTechnology.save(), existingEmployee?.save()]);
+      res.status(202).json({ msg: "manager updated!", status: "202" });
+    }
+  } catch {
+    throw new Error();
   }
 };
