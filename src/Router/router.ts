@@ -22,31 +22,31 @@ import expressAsyncHandler from "express-async-handler";
 
 const router = express();
 
-router.post("/admin-login", adminLogin);
+router.post("/admin-login", expressAsyncHandler(adminLogin));
 
-router.post("/manager-login", managerLogin);
+router.post("/manager-login", expressAsyncHandler(managerLogin));
 
-router.post("/employee-login", employeeLogin);
+router.post("/employee-login", expressAsyncHandler(employeeLogin));
 
-router.post("/employee-register", employeeRegister);
+router.post("/employee-register", expressAsyncHandler(employeeRegister));
 
-router.post("/add-manager", addManager);
+router.post("/add-manager", expressAsyncHandler(addManager));
 
-router.post("/update-manager", updateManager);
+router.post("/update-manager", expressAsyncHandler(updateManager));
 
-router.post("/add-employee", addEmployee);
+router.post("/add-employee", expressAsyncHandler(addEmployee));
 
-router.post("/update-employee", updateEmployee);
+router.post("/update-employee", expressAsyncHandler(updateEmployee));
 
-router.get("/get-technologies", getTechnologies);
+router.get("/get-technologies", expressAsyncHandler(getTechnologies));
 
-router.post("/add-quiz", addQuiz);
+router.post("/add-quiz", expressAsyncHandler(addQuiz));
 
-router.post("/get-quiz", getQuiz);
+router.post("/get-quiz", expressAsyncHandler(getQuiz));
 
-router.post("/get-quiz-data", getQuizData);
+router.post("/get-quiz-data", expressAsyncHandler(getQuizData));
 
-router.post("/add-score", addScore);
+router.post("/add-score", expressAsyncHandler(addScore));
 
 router.get(
   "/admin-dashboard/manager-data",
@@ -58,8 +58,14 @@ router.get(
   expressAsyncHandler(getEmployeeData)
 );
 
-router.post("/admin-dashboard/delete-manager-data", deleteManagerData);
+router.post(
+  "/admin-dashboard/delete-manager-data",
+  expressAsyncHandler(deleteManagerData)
+);
 
-router.post("/admin-dashboard/delete-employee-data", deleteEmployeeData);
+router.post(
+  "/admin-dashboard/delete-employee-data",
+  expressAsyncHandler(deleteEmployeeData)
+);
 
 export default router;

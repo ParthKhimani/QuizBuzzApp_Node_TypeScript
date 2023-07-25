@@ -5,7 +5,7 @@ export interface Iuser extends Document {
   password: string;
 }
 
-const adminUserSchema: Schema = new Schema({
+const adminUserSchema = new Schema<Iuser>({
   emailId: String,
   password: String,
 });

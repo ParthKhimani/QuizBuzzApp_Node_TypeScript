@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateEmployee = exports.deleteEmployeeData = exports.getEmployeeData = exports.addQuiz = exports.getEmployees = exports.addEmployee = exports.updateManager = exports.deleteManagerData = exports.getManagerData = exports.addManager = void 0;
+exports.updateEmployee = exports.deleteEmployeeData = exports.getEmployeeData = exports.addQuiz = exports.getTechnologies = exports.addEmployee = exports.updateManager = exports.deleteManagerData = exports.getManagerData = exports.addManager = void 0;
 const manager_user_1 = __importDefault(require("../Model/manager-user"));
 const technology_1 = __importDefault(require("../Model/technology"));
 const employee_user_1 = __importDefault(require("../Model/employee-user"));
 const quiz_1 = __importDefault(require("../Model/quiz"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
-const addManager = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const addManager = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { manager, password, technology } = req.body;
         const existingManager = yield manager_user_1.default.findOne({
@@ -66,55 +66,64 @@ const addManager = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             res.status(200).json({ msg: "Assignment successful", status: "200" });
         }
     }
-    catch (error) {
-        console.error(error);
+    catch (_a) {
         res.status(400).json({ msg: "Not able to assign", status: "400" });
+        throw new Error();
     }
 });
 exports.addManager = addManager;
-const getManagerData = (req, res, next) => {
-    manager_user_1.default.find()
-        .populate("technology")
-        .then((result) => {
-        res.status(200).json({ data: result, status: "200" });
-    });
-};
+const getManagerData = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield manager_user_1.default.find().populate("technology");
+    res.status(200).json({ data: result, status: "200" });
+});
 exports.getManagerData = getManagerData;
-const deleteManagerData = (req, res, next) => {
-    const { emailId, _id } = req.body;
-    manager_user_1.default.findOneAndDelete({ emailId: emailId }).then(() => {
-        technology_1.default.findOneAndUpdate({ managers: _id }, { $pull: { managers: _id } }, { new: true }).then(() => {
-            res.status(200).json({ msg: "deleted successfully", status: "200" });
+const deleteManagerData = (req, res) => {
+    try {
+        const { emailId, _id } = req.body;
+        manager_user_1.default.findOneAndDelete({ emailId: emailId }).then(() => {
+            technology_1.default.findOneAndUpdate({ managers: _id }, { $pull: { managers: _id } }, { new: true }).then(() => {
+                res.status(200).json({ msg: "deleted successfully", status: "200" });
+            });
         });
-    });
+    }
+    catch (_a) {
+        throw new Error();
+    }
 };
 exports.deleteManagerData = deleteManagerData;
-const updateManager = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { manager, password, technology } = req.body;
-    const existingManager = yield manager_user_1.default.findOne({ emailId: manager }).populate("technology");
-    const existingTechnology = existingManager === null || existingManager === void 0 ? void 0 : existingManager.technology;
-    const result = yield technology_1.default.findOne({ name: technology });
-    if (result) {
-        result.managers.push(existingManager === null || existingManager === void 0 ? void 0 : existingManager._id);
-        result.save();
-        const managerIndex = existingTechnology.managers.indexOf(manager);
-        existingTechnology.managers.splice(managerIndex);
-        existingManager.technology = result._id;
-        yield Promise.all([existingTechnology.save(), existingManager === null || existingManager === void 0 ? void 0 : existingManager.save()]);
-        res.status(200).json({ msg: "manager updated!", status: "200" });
+const updateManager = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { manager, password, technology } = req.body;
+        const existingManager = yield manager_user_1.default.findOne({
+            emailId: manager,
+        }).populate("technology");
+        const existingTechnology = existingManager === null || existingManager === void 0 ? void 0 : existingManager.technology;
+        const result = yield technology_1.default.findOne({ name: technology });
+        if (result) {
+            result.managers.push(existingManager === null || existingManager === void 0 ? void 0 : existingManager._id);
+            result.save();
+            const managerIndex = existingTechnology.managers.indexOf(manager);
+            existingTechnology.managers.splice(managerIndex);
+            existingManager.technology = result._id;
+            yield Promise.all([existingTechnology.save(), existingManager === null || existingManager === void 0 ? void 0 : existingManager.save()]);
+            res.status(200).json({ msg: "manager updated!", status: "200" });
+        }
+        else {
+            const newTechnology = new technology_1.default({
+                name: technology,
+            });
+            newTechnology.save();
+            existingManager.technology = newTechnology._id;
+            yield Promise.all([existingTechnology.save(), existingManager === null || existingManager === void 0 ? void 0 : existingManager.save()]);
+            res.status(202).json({ msg: "manager updated!", status: "202" });
+        }
     }
-    else {
-        const newTechnology = new technology_1.default({
-            name: technology,
-        });
-        newTechnology.save();
-        existingManager.technology = newTechnology._id;
-        yield Promise.all([existingTechnology.save(), existingManager === null || existingManager === void 0 ? void 0 : existingManager.save()]);
-        res.status(202).json({ msg: "manager updated!", status: "202" });
+    catch (_b) {
+        throw new Error();
     }
 });
 exports.updateManager = updateManager;
-const addEmployee = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const addEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { employee, password, technology } = req.body;
         const existingEmployee = yield employee_user_1.default.findOne({
@@ -162,102 +171,127 @@ const addEmployee = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             res.status(200).json({ msg: "Assignment successful", status: "200" });
         }
     }
-    catch (error) {
-        console.error(error);
+    catch (_c) {
         res.status(400).json({ msg: "Not able to assign", status: "400" });
+        throw new Error();
     }
 });
 exports.addEmployee = addEmployee;
-const getEmployees = (req, res, next) => {
-    employee_user_1.default.find()
-        .populate("technology")
-        .then((result) => {
-        res.status(200).json({ employees: result, status: "200" });
-    });
-};
-exports.getEmployees = getEmployees;
-const addQuiz = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { questions, employee } = req.body;
-    const existingEmployee = yield employee_user_1.default.findOne({ emailId: employee });
-    const newQuiz = new quiz_1.default({
-        questions: questions,
-        employee: existingEmployee._id,
-    });
-    yield newQuiz.save().then((result) => {
-        existingEmployee.quizes.push({
-            quiz: result._id,
-            score: questions.length,
+const getTechnologies = (req, res) => {
+    try {
+        technology_1.default.find().then((result) => {
+            res.status(200).json({ technologies: result, status: "200" });
         });
-        existingEmployee.save();
-    });
-    let mailTransporter = nodemailer_1.default.createTransport({
-        tls: {
-            rejectUnauthorized: false,
-        },
-        service: "gmail",
-        auth: {
-            user: "parthkhimani48@gmail.com",
-            pass: "maatulplnmgqgyio",
-        },
-    });
-    let mailDetails = {
-        from: "parthkhimani48@gmail.com",
-        to: employee,
-        subject: "New Quiz Created!",
-        text: "Greetings from QuizBuzz, Your new quiz was created , Login to attend the quiz!",
-    };
-    mailTransporter.sendMail(mailDetails, function (err, data) {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            console.log("Email sent successfully");
-            res.status(202).json({ msg: "email sent successfully", status: "202" });
-        }
-    });
-});
-exports.addQuiz = addQuiz;
-const getEmployeeData = (req, res, next) => {
-    employee_user_1.default.find()
-        .populate("technology")
-        .then((result) => {
-        res.status(200).json({ data: result, status: "200" });
-    });
-};
-exports.getEmployeeData = getEmployeeData;
-const deleteEmployeeData = (req, res, next) => {
-    const { emailId, _id } = req.body;
-    employee_user_1.default.findOneAndDelete({ emailId: emailId }).then(() => {
-        technology_1.default.findOneAndUpdate({ employees: _id }, { $pull: { employees: _id } }, { new: true }).then(() => {
-            res.status(200).json({ msg: "employee deleted", status: "200" });
-        });
-    });
-};
-exports.deleteEmployeeData = deleteEmployeeData;
-const updateEmployee = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { employee, password, technology } = req.body;
-    const existingEmployee = yield employee_user_1.default.findOne({
-        emailId: employee,
-    }).populate("technology");
-    const existingTechnology = existingEmployee === null || existingEmployee === void 0 ? void 0 : existingEmployee.technology;
-    const result = yield technology_1.default.findOne({ name: technology });
-    if (result) {
-        result.employees.push(existingEmployee === null || existingEmployee === void 0 ? void 0 : existingEmployee._id);
-        result.save();
-        const employeeIndex = existingTechnology.employees.indexOf(employee);
-        existingTechnology.employees.splice(employeeIndex);
-        existingEmployee.technology = result._id;
-        yield Promise.all([existingTechnology.save(), existingEmployee === null || existingEmployee === void 0 ? void 0 : existingEmployee.save()]);
-        res.status(200).json({ msg: "employee updated!", status: "200" });
     }
-    else {
-        const newTechnology = new technology_1.default({
+    catch (_a) {
+        throw new Error();
+    }
+};
+exports.getTechnologies = getTechnologies;
+const addQuiz = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { questions, technology } = req.body;
+        const existingTechnology = yield technology_1.default.findOne({
             name: technology,
         });
-        newTechnology.save();
-        existingEmployee.technology = newTechnology._id;
-        yield Promise.all([existingTechnology.save(), existingEmployee === null || existingEmployee === void 0 ? void 0 : existingEmployee.save()]);
-        res.status(202).json({ msg: "manager updated!", status: "202" });
+        const existingEmployees = existingTechnology.employees;
+        for (let i = 0; i < existingEmployees.length; i++) {
+            const newQuiz = new quiz_1.default({
+                questions: questions,
+                employee: existingEmployees[i]._id,
+            });
+            const result = yield newQuiz.save();
+            const existingEmployee = yield employee_user_1.default.find({
+                _id: { $in: existingEmployees },
+            });
+            existingEmployee[i].quizes.push({
+                quiz: result._id,
+                score: questions.length,
+            });
+            yield existingEmployee[i].save();
+            //sending mail to all the candidates in the technology selected
+            let mailTransporter = nodemailer_1.default.createTransport({
+                tls: {
+                    rejectUnauthorized: false,
+                },
+                service: "gmail",
+                auth: {
+                    user: "parthkhimani48@gmail.com",
+                    pass: "maatulplnmgqgyio",
+                },
+            });
+            let mailDetails = {
+                from: "parthkhimani48@gmail.com",
+                to: existingEmployee[i].emailId,
+                subject: "New Quiz Created!",
+                text: "Greetings from QuizBuzz, Your new quiz was created , Login to attend the quiz!",
+            };
+            mailTransporter.sendMail(mailDetails, function (err, data) {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    console.log("Email sent successfully");
+                    res
+                        .status(202)
+                        .json({ msg: "email sent successfully", status: "202" });
+                }
+            });
+        }
+    }
+    catch (_d) {
+        throw new Error();
+    }
+});
+exports.addQuiz = addQuiz;
+const getEmployeeData = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield employee_user_1.default.find().populate("technology");
+    res.status(200).json({ data: result, status: "200" });
+});
+exports.getEmployeeData = getEmployeeData;
+const deleteEmployeeData = (req, res) => {
+    try {
+        const { emailId, _id } = req.body;
+        employee_user_1.default.findOneAndDelete({ emailId: emailId }).then(() => {
+            technology_1.default.findOneAndUpdate({ employees: _id }, { $pull: { employees: _id } }, { new: true }).then(() => {
+                res.status(200).json({ msg: "employee deleted", status: "200" });
+            });
+        });
+    }
+    catch (_a) {
+        throw new Error();
+    }
+};
+exports.deleteEmployeeData = deleteEmployeeData;
+const updateEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { employee, password, technology } = req.body;
+        const existingEmployee = yield employee_user_1.default.findOne({
+            emailId: employee,
+        }).populate("technology");
+        const existingTechnology = existingEmployee === null || existingEmployee === void 0 ? void 0 : existingEmployee.technology;
+        const result = yield technology_1.default.findOne({ name: technology });
+        if (result) {
+            result.employees.push(existingEmployee === null || existingEmployee === void 0 ? void 0 : existingEmployee._id);
+            result.save();
+            const employeeIndex = existingTechnology.employees.indexOf(employee);
+            existingTechnology.employees.splice(employeeIndex);
+            existingEmployee.technology = result._id;
+            yield Promise.all([existingTechnology.save(), existingEmployee === null || existingEmployee === void 0 ? void 0 : existingEmployee.save()]);
+            res.status(200).json({ msg: "employee updated!", status: "200" });
+        }
+        else {
+            const newTechnology = new technology_1.default({
+                name: technology,
+            });
+            newTechnology.save();
+            existingEmployee.technology = newTechnology._id;
+            yield Promise.all([existingTechnology.save(), existingEmployee === null || existingEmployee === void 0 ? void 0 : existingEmployee.save()]);
+            res.status(202).json({ msg: "manager updated!", status: "202" });
+        }
+    }
+    catch (_e) {
+        throw new Error();
     }
 });
 exports.updateEmployee = updateEmployee;
