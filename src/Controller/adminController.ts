@@ -57,6 +57,7 @@ export const getManagerData = async (req: Request, res: Response) => {
 };
 
 export const deleteManagerData = async (req: Request, res: Response) => {
+  console.log("called!");
   const { emailId, _id } = req.body;
   await Manager.findOneAndDelete({ emailId: emailId });
   await Technology.findOneAndUpdate(
