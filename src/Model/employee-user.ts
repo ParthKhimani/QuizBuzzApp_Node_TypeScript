@@ -10,8 +10,9 @@ export interface IEmployee extends Document {
   technology: mongoose.Types.ObjectId | ITechnology;
   quizes: Array<{
     quiz: mongoose.Types.ObjectId | IQuiz;
+    answers?: Array<{ index: number; answer: number }>;
     score: number;
-    scoreGained?: Number;
+    scoreGained?: number;
     attempted?: boolean;
   }>;
 }
@@ -31,6 +32,12 @@ const employeeSchema = new Schema<IEmployee>({
         type: Schema.Types.ObjectId,
         ref: "Quiz",
       },
+      answers: [
+        {
+          index: Number,
+          answer: Number,
+        },
+      ],
       score: Number,
       scoreGained: Number,
       attempted: {

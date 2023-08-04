@@ -69,9 +69,11 @@ export const deleteManagerData = async (req: Request, res: Response) => {
 
 export const updateManager = async (req: Request, res: Response) => {
   const { manager, password, technology } = req.body;
-  const existingManager = await Manager.findOne({
-    emailId: manager,
-  }).populate("technology");
+  const existingManager = await Manager.findOneAndUpdate(
+    { emailId: manager },
+    { password: password },
+    { new: true }
+  ).populate("technology");
   const existingTechnology = existingManager?.technology as ITechnology;
   const result = await Technology.findOne({ name: technology });
   if (result) {
@@ -216,9 +218,11 @@ export const deleteEmployeeData = async (req: Request, res: Response) => {
 
 export const updateEmployee = async (req: Request, res: Response) => {
   const { employee, password, technology } = req.body;
-  const existingEmployee = await Employee.findOne({
-    emailId: employee,
-  }).populate("technology");
+  const existingEmployee = await Employee.findOneAndUpdate(
+    { emailId: employee },
+    { password: password },
+    { new: true }
+  ).populate("technology");
   const existingTechnology = existingEmployee?.technology as ITechnology;
   const result = await Technology.findOne({ name: technology });
   if (result) {

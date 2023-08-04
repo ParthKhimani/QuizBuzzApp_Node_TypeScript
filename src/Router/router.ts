@@ -17,7 +17,12 @@ import {
   updateEmployee,
   updateManager,
 } from "../Controller/adminController";
-import { addScore, getQuiz, getQuizData } from "../Controller/quizController";
+import {
+  addScore,
+  getQuiz,
+  getQuizData,
+  getQuizDataWithAnswers,
+} from "../Controller/quizController";
 import expressAsyncHandler from "express-async-handler";
 
 const router = express();
@@ -45,6 +50,11 @@ router.post("/add-quiz", expressAsyncHandler(addQuiz));
 router.post("/get-quiz", expressAsyncHandler(getQuiz));
 
 router.post("/get-quiz-data", expressAsyncHandler(getQuizData));
+
+router.post(
+  "/get-quiz-data-with-answers",
+  expressAsyncHandler(getQuizDataWithAnswers)
+);
 
 router.post("/add-score", expressAsyncHandler(addScore));
 
