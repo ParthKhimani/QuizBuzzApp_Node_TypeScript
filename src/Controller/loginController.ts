@@ -3,6 +3,7 @@ import Admin from "../Model/admin-user";
 import Manager from "../Model/manager-user";
 import Employee from "../Model/employee-user";
 import Technology from "../Model/technology";
+import jwt from "jsonwebtoken";
 
 export const adminLogin = async (req: Request, res: Response) => {
   const { emailId, password } = req.body;
@@ -12,7 +13,10 @@ export const adminLogin = async (req: Request, res: Response) => {
   } else {
     const passCheck = password.localeCompare(result.password);
     if (passCheck == 0) {
-      res.status(303).json({ msg: "Admin Logged In !", status: "303" });
+      const token = jwt.sign({ role: "admin" }, "secretkey", {
+        expiresIn: "1h",
+      });
+      res.status(303).json({ msg: "Admin Logged In !", status: "303", token });
     } else {
       res.status(400).json({ msg: "Incorrect Password !", status: "400" });
     }
@@ -29,9 +33,15 @@ export const managerLogin = async (req: Request, res: Response) => {
   } else {
     const passCheck = password.localeCompare(result.password);
     if (passCheck == 0) {
-      res
-        .status(303)
-        .json({ msg: "Manager Logged In !", manager: result, status: "303" });
+      const token = jwt.sign({ role: "manager" }, "secretkey", {
+        expiresIn: "1h",
+      });
+      res.status(303).json({
+        msg: "Manager Logged In !",
+        manager: result,
+        status: "303",
+        token,
+      });
     } else {
       res.status(400).json({ msg: "Incorrect Password !", status: "400" });
     }
@@ -46,9 +56,15 @@ export const employeeLogin = async (req: Request, res: Response) => {
   } else {
     const passCheck = password.localeCompare(result.password);
     if (passCheck == 0) {
-      res
-        .status(303)
-        .json({ msg: "Employee Logged In !", employee: result, status: "303" });
+      const token = jwt.sign({ role: "employee" }, "secretkey", {
+        expiresIn: "1h",
+      });
+      res.status(303).json({
+        msg: "Employee Logged In !",
+        employee: result,
+        status: "303",
+        token,
+      });
     } else {
       res.status(400).json({ msg: "Incorrect Password !", status: "400" });
     }
