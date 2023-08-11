@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Admin from "../Model/admin-user";
 import Manager from "../Model/manager-user";
 import Employee from "../Model/employee-user";
-import Technology from "../Model/technology";
+import Technology, { ITechnology } from "../Model/technology";
 import jwt from "jsonwebtoken";
 
 export const adminLogin = async (req: Request, res: Response) => {
@@ -32,10 +32,16 @@ export const managerLogin = async (req: Request, res: Response) => {
     res.status(404).json({ msg: "Manager not found !", status: "404" });
   } else {
     const passCheck = password.localeCompare(result.password);
+    const technology = result.technology as ITechnology;
+    const technologyName = technology.name;
     if (passCheck == 0) {
-      const token = jwt.sign({ role: "manager" }, "secretkey", {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        { role: "manager", technology: technologyName },
+        "secretkey",
+        {
+          expiresIn: "1h",
+        }
+      );
       res.status(303).json({
         msg: "Manager Logged In !",
         manager: result,
@@ -56,9 +62,13 @@ export const employeeLogin = async (req: Request, res: Response) => {
   } else {
     const passCheck = password.localeCompare(result.password);
     if (passCheck == 0) {
-      const token = jwt.sign({ role: "employee" }, "secretkey", {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        { role: "employee", employee: emailId },
+        "secretkey",
+        {
+          expiresIn: "1h",
+        }
+      );
       res.status(303).json({
         msg: "Employee Logged In !",
         employee: result,
