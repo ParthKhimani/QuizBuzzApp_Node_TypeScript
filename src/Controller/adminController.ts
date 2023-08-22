@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Manager from "../Model/manager-user";
 import Technology, { ITechnology } from "../Model/technology";
-import Employee from "../Model/employee-user";
+import Employee, { IEmployee } from "../Model/employee-user";
 import Quiz from "../Model/quiz";
 import nodemailer from "nodemailer";
 
@@ -155,22 +155,29 @@ export const addQuiz = async (req: Request, res: Response) => {
     name: technology,
   });
   const existingEmployees = existingTechnology!.employees;
+  const employees = [];
   for (let i = 0; i < existingEmployees!.length; i++) {
-    const newQuiz = new Quiz({
-      questions: questions,
-      employee: existingEmployees![i]._id,
-    });
-    const result = await newQuiz.save();
-    const existingEmployee = await Employee.find({
-      _id: { $in: existingEmployees },
-    });
+    employees.push(existingEmployees[i]._id);
+  }
+  const newQuiz = new Quiz({
+    questions: questions,
+    employees: employees,
+    technology: existingTechnology?._id,
+  });
+
+  const result = await newQuiz.save();
+  const existingEmployee = await Employee.find({
+    _id: { $in: existingEmployees },
+  });
+  for (let i = 0; i < existingEmployees!.length; i++) {
     existingEmployee![i].quizes.push({
       quiz: result._id,
       score: questions.length,
     });
     await existingEmployee![i].save();
-
-    //sending mail to all the candidates in the technology selected
+  }
+  //sending mail to all the candidates in the technology selected
+  for (let i = 0; i < existingEmployees!.length; i++) {
     let mailTransporter = nodemailer.createTransport({
       tls: {
         rejectUnauthorized: false,

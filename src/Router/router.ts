@@ -18,12 +18,17 @@ import {
   updateManager,
 } from "../Controller/adminController";
 import {
+  AbandonQuiz,
+  AssignQuiz,
+  EmployeeDataToAssignQuiz,
   addScore,
   getQuiz,
+  getQuizByTechnology,
   getQuizData,
   getQuizDataWithAnswers,
 } from "../Controller/quizController";
 import expressAsyncHandler from "express-async-handler";
+import { verifyToken } from "../authentication/verifyToken";
 
 const router = express();
 
@@ -47,24 +52,59 @@ router.get("/get-technologies", expressAsyncHandler(getTechnologies));
 
 router.post("/add-quiz", expressAsyncHandler(addQuiz));
 
-router.post("/get-quiz", expressAsyncHandler(getQuiz));
+router.post(
+  "/get-quiz",
+  expressAsyncHandler(verifyToken),
+  expressAsyncHandler(getQuiz)
+);
 
-router.post("/get-quiz-data", expressAsyncHandler(getQuizData));
+router.post(
+  "/get-quiz-by-technology",
+  expressAsyncHandler(verifyToken),
+  expressAsyncHandler(getQuizByTechnology)
+);
+
+router.post(
+  "/assign-auiz",
+  expressAsyncHandler(verifyToken),
+  expressAsyncHandler(AssignQuiz)
+);
+
+router.post(
+  "/abandon-auiz",
+  expressAsyncHandler(verifyToken),
+  expressAsyncHandler(AbandonQuiz)
+);
+
+router.post(
+  "/get-employee-data-to-assign-quiz",
+  expressAsyncHandler(verifyToken),
+  expressAsyncHandler(EmployeeDataToAssignQuiz)
+);
+
+router.post(
+  "/get-quiz-data",
+  expressAsyncHandler(verifyToken),
+  expressAsyncHandler(getQuizData)
+);
 
 router.post(
   "/get-quiz-data-with-answers",
+  expressAsyncHandler(verifyToken),
   expressAsyncHandler(getQuizDataWithAnswers)
 );
 
 router.post("/add-score", expressAsyncHandler(addScore));
 
-router.get(
+router.post(
   "/admin-dashboard/manager-data",
+  expressAsyncHandler(verifyToken),
   expressAsyncHandler(getManagerData)
 );
 
-router.get(
+router.post(
   "/admin-dashboard/employee-data",
+  expressAsyncHandler(verifyToken),
   expressAsyncHandler(getEmployeeData)
 );
 

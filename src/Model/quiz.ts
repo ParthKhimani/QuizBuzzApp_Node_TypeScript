@@ -1,5 +1,6 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 import { IEmployee } from "./employee-user";
+import { ITechnology } from "./technology";
 
 interface Option {
   id: string;
@@ -15,7 +16,8 @@ export interface Question {
 
 export interface IQuiz extends Document {
   questions: Question[];
-  employee: mongoose.Types.ObjectId | IEmployee;
+  employees: mongoose.Types.ObjectId[] | Types.Array<IEmployee>;
+  technology: mongoose.Types.ObjectId | ITechnology;
 }
 
 const quizSchema = new Schema<IQuiz>({
@@ -32,9 +34,15 @@ const quizSchema = new Schema<IQuiz>({
       answer: String,
     },
   ],
-  employee: {
+  employees: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Employee",
+    },
+  ],
+  technology: {
     type: Schema.Types.ObjectId,
-    ref: "Employee",
+    ref: "Technology",
   },
 });
 
