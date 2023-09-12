@@ -17,112 +17,105 @@ const admin_user_1 = __importDefault(require("../Model/admin-user"));
 const manager_user_1 = __importDefault(require("../Model/manager-user"));
 const employee_user_1 = __importDefault(require("../Model/employee-user"));
 const technology_1 = __importDefault(require("../Model/technology"));
-const adminLogin = (req, res) => {
-    try {
-        const { emailId, password } = req.body;
-        admin_user_1.default.findOne({ emailId: emailId }).then((result) => {
-            if (!result) {
-                res.status(404).json({ msg: "Admin not found !", status: "404" });
-            }
-            else {
-                const passCheck = password.localeCompare(result.password);
-                if (passCheck == 0) {
-                    res.status(303).json({ msg: "Admin Logged In !", status: "303" });
-                }
-                else {
-                    res.status(400).json({ msg: "Incorrect Password !", status: "400" });
-                }
-            }
-        });
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { emailId, password } = req.body;
+    const result = yield admin_user_1.default.findOne({ emailId: emailId });
+    if (!result) {
+        res.status(404).json({ msg: "Admin not found !", status: "404" });
     }
-    catch (_a) {
-        throw new Error();
-    }
-};
-exports.adminLogin = adminLogin;
-const managerLogin = (req, res) => {
-    try {
-        const { emailId, password } = req.body;
-        manager_user_1.default.findOne({ emailId: emailId }).then((result) => {
-            if (!result) {
-                res.status(404).json({ msg: "Manager not found !", status: "404" });
-            }
-            else {
-                const passCheck = password.localeCompare(result.password);
-                if (passCheck == 0) {
-                    res.status(303).json({ msg: "Manager Logged In !", status: "303" });
-                }
-                else {
-                    res.status(400).json({ msg: "Incorrect Password !", status: "400" });
-                }
-            }
-        });
-    }
-    catch (_a) {
-        throw new Error();
-    }
-};
-exports.managerLogin = managerLogin;
-const employeeLogin = (req, res) => {
-    try {
-        const { emailId, password } = req.body;
-        employee_user_1.default.findOne({ emailId: emailId }).then((result) => {
-            if (!result) {
-                res.status(404).json({ msg: "Employee not found !", status: "404" });
-            }
-            else {
-                const passCheck = password.localeCompare(result.password);
-                if (passCheck == 0) {
-                    res.status(303).json({ msg: "Employee Logged In !", status: "303" });
-                }
-                else {
-                    res.status(400).json({ msg: "Incorrect Password !", status: "400" });
-                }
-            }
-        });
-    }
-    catch (_a) {
-        throw new Error();
-    }
-};
-exports.employeeLogin = employeeLogin;
-const employeeRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { firstName, lastName, emailId, password, technology } = req.body;
-        const result = yield employee_user_1.default.findOne({ emailId: emailId });
-        if (result != null) {
-            res
-                .status(400)
-                .json({ msg: "employee already registered!", status: "400" });
+    else {
+        const passCheck = password.localeCompare(result.password);
+        if (passCheck == 0) {
+            const token = jsonwebtoken_1.default.sign({ role: "admin" }, "secret-key");
+            res.status(303).json({ msg: "Admin Logged In !", status: "303", token });
         }
         else {
-            const newEmployee = new employee_user_1.default({
-                firstName: firstName,
-                lastName: lastName,
-                emailId: emailId,
-                password: password,
-            });
-            const existingTechnology = yield technology_1.default.findOne({ name: technology });
-            if (existingTechnology != null) {
-                existingTechnology.employees.push(newEmployee._id);
-                newEmployee.technology = existingTechnology._id;
-                yield Promise.all([existingTechnology.save(), newEmployee.save()]);
-                res.status(202).json({ msg: "employee registered!", status: "202" });
-            }
-            else {
-                const newTechnology = new technology_1.default({
-                    name: technology,
-                });
-                yield newTechnology.save();
-                newTechnology.employees.push(newEmployee._id);
-                newEmployee.technology = newTechnology._id;
-                yield Promise.all([newTechnology.save(), newEmployee.save()]);
-                res.status(202).json({ msg: "employee registered!", status: "202" });
-            }
+            res.status(400).json({ msg: "Incorrect Password !", status: "400" });
         }
     }
-    catch (_a) {
-        throw new Error();
+});
+exports.adminLogin = adminLogin;
+const managerLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { emailId, password } = req.body;
+    const result = yield manager_user_1.default.findOne({ emailId: emailId }).populate("technology");
+    if (!result) {
+        res.status(404).json({ msg: "Manager not found !", status: "404" });
+    }
+    else {
+        const passCheck = password.localeCompare(result.password);
+        const technology = result.technology;
+        const technologyName = technology.name;
+        if (passCheck == 0) {
+            const token = jsonwebtoken_1.default.sign({ role: "manager", technology: technologyName }, "secret-key");
+            res.status(303).json({
+                msg: "Manager Logged In !",
+                manager: result,
+                status: "303",
+                token,
+            });
+        }
+        else {
+            res.status(400).json({ msg: "Incorrect Password !", status: "400" });
+        }
+    }
+});
+exports.managerLogin = managerLogin;
+const employeeLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { emailId, password } = req.body;
+    const result = yield employee_user_1.default.findOne({ emailId: emailId });
+    if (!result) {
+        res.status(404).json({ msg: "Employee not found !", status: "404" });
+    }
+    else {
+        const passCheck = password.localeCompare(result.password);
+        if (passCheck == 0) {
+            const token = jsonwebtoken_1.default.sign({ role: "employee", employee: emailId }, "secret-key");
+            res.status(303).json({
+                msg: "Employee Logged In !",
+                employee: result,
+                status: "303",
+                token,
+            });
+        }
+        else {
+            res.status(400).json({ msg: "Incorrect Password !", status: "400" });
+        }
+    }
+});
+exports.employeeLogin = employeeLogin;
+const employeeRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { firstName, lastName, emailId, password, technology } = req.body;
+    const result = yield employee_user_1.default.findOne({ emailId: emailId });
+    if (result != null) {
+        res
+            .status(400)
+            .json({ msg: "employee already registered!", status: "400" });
+    }
+    else {
+        const newEmployee = new employee_user_1.default({
+            firstName: firstName,
+            lastName: lastName,
+            emailId: emailId,
+            password: password,
+        });
+        const existingTechnology = yield technology_1.default.findOne({ name: technology });
+        if (existingTechnology != null) {
+            existingTechnology.employees.push(newEmployee._id);
+            newEmployee.technology = existingTechnology._id;
+            yield Promise.all([existingTechnology.save(), newEmployee.save()]);
+            res.status(202).json({ msg: "employee registered!", status: "202" });
+        }
+        else {
+            const newTechnology = new technology_1.default({
+                name: technology,
+            });
+            yield newTechnology.save();
+            newTechnology.employees.push(newEmployee._id);
+            newEmployee.technology = newTechnology._id;
+            yield Promise.all([newTechnology.save(), newEmployee.save()]);
+            res.status(202).json({ msg: "employee registered!", status: "202" });
+        }
     }
 });
 exports.employeeRegister = employeeRegister;

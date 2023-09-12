@@ -38,9 +38,15 @@ const quizSchema = new mongoose_1.Schema({
             answer: String,
         },
     ],
-    employee: {
+    employees: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: "Employee",
+        },
+    ],
+    technology: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: "Employee",
+        ref: "Technology",
     },
 });
 const Quiz = mongoose_1.default.model("Quiz", quizSchema);

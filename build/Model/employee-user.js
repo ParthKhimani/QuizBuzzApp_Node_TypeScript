@@ -39,6 +39,12 @@ const employeeSchema = new mongoose_1.Schema({
                 type: mongoose_1.Schema.Types.ObjectId,
                 ref: "Quiz",
             },
+            answers: [
+                {
+                    index: Number,
+                    answer: Number,
+                },
+            ],
             score: Number,
             scoreGained: Number,
             attempted: {
