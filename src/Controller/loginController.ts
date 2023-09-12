@@ -13,9 +13,7 @@ export const adminLogin = async (req: Request, res: Response) => {
   } else {
     const passCheck = password.localeCompare(result.password);
     if (passCheck == 0) {
-      const token = jwt.sign({ role: "admin" }, "secret-key", {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign({ role: "admin" }, "secret-key");
       res.status(303).json({ msg: "Admin Logged In !", status: "303", token });
     } else {
       res.status(400).json({ msg: "Incorrect Password !", status: "400" });
@@ -37,10 +35,7 @@ export const managerLogin = async (req: Request, res: Response) => {
     if (passCheck == 0) {
       const token = jwt.sign(
         { role: "manager", technology: technologyName },
-        "secret-key",
-        {
-          expiresIn: "1h",
-        }
+        "secret-key"
       );
       res.status(303).json({
         msg: "Manager Logged In !",
@@ -64,10 +59,7 @@ export const employeeLogin = async (req: Request, res: Response) => {
     if (passCheck == 0) {
       const token = jwt.sign(
         { role: "employee", employee: emailId },
-        "secret-key",
-        {
-          expiresIn: "1h",
-        }
+        "secret-key"
       );
       res.status(303).json({
         msg: "Employee Logged In !",

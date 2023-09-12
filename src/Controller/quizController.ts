@@ -22,9 +22,11 @@ export const AssignQuiz = async (req: Request, res: Response) => {
     .populate("employees")
     .populate("technology");
   const existingEmployee = await Employee.findOne({ emailId: employee });
-  existingEmployee?.quizes.push(quiz);
+  existingEmployee?.quizes.push({
+    quiz: result?._id,
+    score: result?.questions?.length!,
+  });
   await existingEmployee?.save();
-  // const existingQuiz = result as IQuiz;
   result?.employees.push(existingEmployee?._id);
   await result?.save();
   res.status(200).json({ quiz: result, status: "200" });
@@ -36,10 +38,9 @@ export const AbandonQuiz = async (req: Request, res: Response) => {
     .populate("employees")
     .populate("technology");
   const existingEmployee = await Employee.findOne({ emailId: employee });
-  const quizIndex = existingEmployee?.quizes.indexOf(quiz);
+  const quizIndex = existingEmployee?.quizes.indexOf(result?._id);
   existingEmployee?.quizes.splice(quizIndex!, 1);
   await existingEmployee?.save();
-  // const existingQuiz = result as IQuiz;
   const employeeIndex = result?.employees.indexOf(existingEmployee?._id);
   result?.employees.splice(employeeIndex!, 1);
   await result?.save();

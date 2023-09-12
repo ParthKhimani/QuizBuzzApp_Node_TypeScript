@@ -11,6 +11,6 @@ export const verifyToken = (
     jwt.verify(token, "secret-key");
     next();
   } catch (error) {
-    res.status(500).json("unauthorized");
+    res.status(500).json("unautharized");
   }
 };
