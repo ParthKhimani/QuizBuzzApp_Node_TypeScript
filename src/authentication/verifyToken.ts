@@ -6,9 +6,9 @@ export const verifyToken = (
   res: Response,
   next: NextFunction
 ) => {
-  const { token } = req.cookies;
+  const { auth } = req.headers;
   try {
-    jwt.verify(token, "secret-key");
+    jwt.verify(String(auth), "secret-key");
     next();
   } catch (error) {
     res.status(500).json("unautharized");

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Manager from "../Model/manager-user";
 import Technology, { ITechnology } from "../Model/technology";
-import Employee, { IEmployee } from "../Model/employee-user";
+import Employee from "../Model/employee-user";
 import Quiz from "../Model/quiz";
 import nodemailer from "nodemailer";
 
