@@ -4,12 +4,14 @@ import mongoose from "mongoose";
 import cors from "cors";
 import router from "./Router/router";
 import { errorHandler } from "./exceptions/errorHandler";
+import cookieParser from "cookie-parser";
 import "dotenv/config";
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(router);
 app.use(errorHandler);
 
