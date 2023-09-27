@@ -52,13 +52,13 @@ router.get("/get-technologies", expressAsyncHandler(getTechnologies));
 
 router.post("/add-quiz", expressAsyncHandler(addQuiz));
 
-router.get(
+router.post(
   "/get-quiz",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(getQuiz)
 );
 
-router.get(
+router.post(
   "/get-quiz-by-technology",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(getQuizByTechnology)
