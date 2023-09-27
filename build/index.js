@@ -19,3 +19,4 @@ mongoose_1.default.connect(`mongodb+srv://parth:${process.env.MONGODB_PASSWORD}@
 app.listen(process.env.PORT, () => {
     console.log(`server started at port: ${process.env.PORT}`);
 });
+exports.default = app;

@@ -28,8 +28,8 @@ router.post("/get-employee-data-to-assign-quiz", (0, express_async_handler_1.def
 router.post("/get-quiz-data", (0, express_async_handler_1.default)(verifyToken_1.verifyToken), (0, express_async_handler_1.default)(quizController_1.getQuizData));
 router.post("/get-quiz-data-with-answers", (0, express_async_handler_1.default)(verifyToken_1.verifyToken), (0, express_async_handler_1.default)(quizController_1.getQuizDataWithAnswers));
 router.post("/add-score", (0, express_async_handler_1.default)(quizController_1.addScore));
-router.post("/admin-dashboard/manager-data", (0, express_async_handler_1.default)(verifyToken_1.verifyToken), (0, express_async_handler_1.default)(adminController_1.getManagerData));
-router.post("/admin-dashboard/employee-data", (0, express_async_handler_1.default)(verifyToken_1.verifyToken), (0, express_async_handler_1.default)(adminController_1.getEmployeeData));
+router.get("/admin-dashboard/manager-data", (0, express_async_handler_1.default)(verifyToken_1.verifyToken), (0, express_async_handler_1.default)(adminController_1.getManagerData));
+router.get("/admin-dashboard/employee-data", (0, express_async_handler_1.default)(verifyToken_1.verifyToken), (0, express_async_handler_1.default)(adminController_1.getEmployeeData));
 router.post("/admin-dashboard/delete-manager-data", (0, express_async_handler_1.default)(adminController_1.deleteManagerData));
 router.post("/admin-dashboard/delete-employee-data", (0, express_async_handler_1.default)(adminController_1.deleteEmployeeData));
 exports.default = router;

@@ -6,7 +6,7 @@ export const verifyToken = (
   res: Response,
   next: NextFunction
 ) => {
-  const { token } = req.body;
+  const { token } = req.cookies;
   try {
     jwt.verify(token, "secret-key");
     next();

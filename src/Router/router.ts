@@ -52,19 +52,19 @@ router.get("/get-technologies", expressAsyncHandler(getTechnologies));
 
 router.post("/add-quiz", expressAsyncHandler(addQuiz));
 
-router.post(
+router.get(
   "/get-quiz",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(getQuiz)
 );
 
-router.post(
+router.get(
   "/get-quiz-by-technology",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(getQuizByTechnology)
 );
 
-router.post(
+router.get(
   "/assign-auiz",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(AssignQuiz)
@@ -96,13 +96,13 @@ router.post(
 
 router.post("/add-score", expressAsyncHandler(addScore));
 
-router.post(
+router.get(
   "/admin-dashboard/manager-data",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(getManagerData)
 );
 
-router.post(
+router.get(
   "/admin-dashboard/employee-data",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(getEmployeeData)

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const verifyToken = (req, res, next) => {
-    const { token } = req.body;
+    const { token } = req.cookies;
     try {
         jsonwebtoken_1.default.verify(token, "secret-key");
         next();
