@@ -20,6 +20,7 @@ import {
 import {
   AbandonQuiz,
   AssignQuiz,
+  DeleteQuiz,
   EmployeeDataToAssignQuiz,
   addScore,
   getQuiz,
@@ -64,16 +65,22 @@ router.post(
   expressAsyncHandler(getQuizByTechnology)
 );
 
-router.get(
-  "/assign-auiz",
+router.post(
+  "/assign-quiz",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(AssignQuiz)
 );
 
 router.post(
-  "/abandon-auiz",
+  "/abandon-quiz",
   expressAsyncHandler(verifyToken),
   expressAsyncHandler(AbandonQuiz)
+);
+
+router.post(
+  "/delete-quiz",
+  expressAsyncHandler(verifyToken),
+  expressAsyncHandler(DeleteQuiz)
 );
 
 router.post(

@@ -151,6 +151,7 @@ export const getTechnologies = async (req: Request, res: Response) => {
 
 export const addQuiz = async (req: Request, res: Response) => {
   const { questions, technology } = req.body;
+  console.log(req.body);
   const existingTechnology = await Technology.findOne({
     name: technology,
   });

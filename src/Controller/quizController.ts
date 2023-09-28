@@ -47,6 +47,14 @@ export const AbandonQuiz = async (req: Request, res: Response) => {
   res.status(200).json({ quiz: result, status: "200" });
 };
 
+export const DeleteQuiz = async (req: Request, res: Response) => {
+  const { quiz } = req.body;
+  const result = await Quiz.findByIdAndDelete(quiz)
+    .populate("employees")
+    .populate("technology");
+  res.status(200).json({ quiz: result, status: "200" });
+};
+
 export const EmployeeDataToAssignQuiz = async (req: Request, res: Response) => {
   const { employee } = req.body;
   const existingEmployee = await Employee.findOne({ emailId: employee });
