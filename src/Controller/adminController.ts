@@ -175,22 +175,22 @@ export const addQuiz = async (req: Request, res: Response) => {
       score: questions.length,
     });
     await existingEmployee![i].save();
-  }
-  //sending mail to all the candidates in the technology selected
-  for (let i = 0; i < existingEmployees!.length; i++) {
+
+    //sending mail to all the candidates in the technology selected
+
     let mailTransporter = nodemailer.createTransport({
       tls: {
         rejectUnauthorized: false,
       },
       service: "gmail",
       auth: {
-        user: "parthkhimani48@gmail.com",
-        pass: "maatulplnmgqgyio",
+        user: `${process.env.EMAIL_ID}`,
+        pass: `${process.env.APP_KEY}`,
       },
     });
 
     let mailDetails = {
-      from: "parthkhimani48@gmail.com",
+      from: `${process.env.EMAIL_ID}`,
       to: existingEmployee![i].emailId,
       subject: "New Quiz Created!",
       text: "Greetings from QuizBuzz, Your new quiz was created , Login to attend the quiz!",
