@@ -12,7 +12,9 @@ export const getQuiz = async (req: Request, res: Response) => {
 
 export const getQuizByTechnology = async (req: Request, res: Response) => {
   const { technology } = req.body;
-  const result = await Quiz.find({ technology: technology });
+  const result = await Quiz.find({ technology: technology }).populate(
+    "technology"
+  );
   res.status(200).json({ quiz: result });
 };
 
@@ -34,17 +36,21 @@ export const AssignQuiz = async (req: Request, res: Response) => {
 
 export const AbandonQuiz = async (req: Request, res: Response) => {
   const { quiz, employee } = req.body;
-  const result = await Quiz.findById(quiz)
-    .populate("employees")
-    .populate("technology");
-  const existingEmployee = await Employee.findOne({ emailId: employee });
-  const quizIndex = existingEmployee?.quizes.indexOf(result?._id);
+  const result = await Quiz.findById(quiz);
+  const existingEmployee = await Employee.findOne({
+    emailId: employee,
+  });
+  let quizIndex;
+  for (let i = 0; i < existingEmployee?.quizes?.length!; i++) {
+    if (String(result?._id) === String(existingEmployee?.quizes[i]?.quiz))
+      quizIndex = i;
+  }
   existingEmployee?.quizes.splice(quizIndex!, 1);
   await existingEmployee?.save();
   const employeeIndex = result?.employees.indexOf(existingEmployee?._id);
   result?.employees.splice(employeeIndex!, 1);
   await result?.save();
-  res.status(200).json({ quiz: result, status: "200" });
+  res.status(200).json({ status: "200" });
 };
 
 export const DeleteQuiz = async (req: Request, res: Response) => {
