@@ -119,4 +119,5 @@ export const addScore = async (req: Request, res: Response) => {
   await Employee.findOneAndUpdate(filter, update, {
     new: true,
   });
+  res.status(200).json({ status: "200" });
 };
